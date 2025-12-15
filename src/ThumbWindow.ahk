@@ -83,7 +83,12 @@ Class ThumbWindow extends Propertys {
             }
         }
 
-        ThumbTitle := ThumbObj["TextOverlay"].Add("Text", "vOverlayText w" This.ThumbnailStartLocation["width"], Win_Title)
+        DisplayText := Win_Title
+        if (This.CustomColorsActive && This.CustomColorsGet[Win_Title]["Label"] != "") {
+            DisplayText := This.CustomColorsGet[Win_Title]["Label"]
+        }
+
+        ThumbTitle := ThumbObj["TextOverlay"].Add("Text", "vOverlayText w" This.ThumbnailStartLocation["width"], DisplayText)
         ;Sets a Color for the Text Control to make it also invisible, same as background color
         ThumbTitle.Opt("+Background040101")
 

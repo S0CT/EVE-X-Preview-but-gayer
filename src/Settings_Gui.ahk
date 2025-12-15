@@ -307,17 +307,21 @@
 
         CustomColors.Push This.S_Gui.Add("Text", " xp+25 yp+140 Section ", "Custom Colors Active - On/Off")        
         CustomColors.Push This.S_Gui.Add("Text", " x35 yp+40  ", "Character Name:")
-        CustomColors.Push This.S_Gui.Add("Text", " xp+155 yp ", "Active Border Color:")
-        CustomColors.Push This.S_Gui.Add("Text", " xp+135 yp ", "Text Color:")
-        CustomColors.Push This.S_Gui.Add("Text", " xp+125 yp ", "Inactive Border Color:")
+        CustomColors.Push This.S_Gui.Add("Text", " xp+120 yp ", "Label:")
+        CustomColors.Push This.S_Gui.Add("Text", " xp+120 yp ", "Active Border Color:")
+        CustomColors.Push This.S_Gui.Add("Text", " xp+120 yp ", "Text Color:")
+        CustomColors.Push This.S_Gui.Add("Text", " xp+100 yp ", "Inactive Border Color:")
 
         CustomColors.Push This.S_Gui.Add("CheckBox", " xs+200 ys vCcoloractive Checked" This.CustomColorsActive, " ON / Off")
         This.S_Gui["Ccoloractive"].OnEvent("Click", (obj, *) => Cclors_Eventhandler(obj))
 
-        CustomColors.Push This.S_Gui.Add("Edit", " x30 yp+60 w150 h250 -Wrap vCchars", This.CustomColors_AllCharNames)
+        CustomColors.Push This.S_Gui.Add("Edit", " x20 yp+60 w110 h250 -Wrap vCchars", This.CustomColors_AllCharNames)
         This.S_Gui["Cchars"].OnEvent("Change", (obj, *) => Cclors_Eventhandler(obj))
 
-        CustomColors.Push This.S_Gui.Add("Edit", " x+10 yp w120 hp -Wrap vCBorderColor", This.CustomColors_AllBColors)
+        CustomColors.Push This.S_Gui.Add("Edit", " x+10 yp wp hp -Wrap vCLabels", This.CustomColors_AllLabels)
+        This.S_Gui["CLabels"].OnEvent("Change", (obj, *) => Cclors_Eventhandler(obj))
+
+        CustomColors.Push This.S_Gui.Add("Edit", " x+10 yp wp hp -Wrap vCBorderColor", This.CustomColors_AllBColors)
         This.S_Gui["CBorderColor"].OnEvent("Change", (obj, *) => Cclors_Eventhandler(obj))
 
         CustomColors.Push This.S_Gui.Add("Edit", " x+10 yp wp hp -Wrap vCTextColor", This.CustomColors_AllTColors)
@@ -339,6 +343,15 @@
                 This.CustomColors_AllCharNames := obj.value
                 if (indexOld < This.IndexcChars) {
                     obj.value := This.CustomColors_AllCharNames
+                    ControlSend("^{End}", obj.Hwnd)
+                }
+                This.NeedRestart := 1
+            }
+            else if (obj.Name = "CLabels") {
+                indexOld := This.IndexcLabels
+                This.CustomColors_AllLabels := obj.value
+                if (indexOld < This.IndexcLabels) {
+                    obj.value := This.CustomColors_AllLabels
                     ControlSend("^{End}", obj.Hwnd)
                 }
                 This.NeedRestart := 1
@@ -775,6 +788,7 @@
         ;Custom Colors
         This.S_Gui["Ccoloractive"].value := This.CustomColorsActive
         This.S_Gui["Cchars"].value := This.CustomColors_AllCharNames
+        This.S_Gui["CLabels"].value := This.CustomColors_AllLabels
         This.S_Gui["CBorderColor"].value := This.CustomColors_AllBColors
         This.S_Gui["CTextColor"].value := This.CustomColors_AllTColors
         This.S_Gui["IABorderColor"].value := This.CustomColors_IABorder_Colors

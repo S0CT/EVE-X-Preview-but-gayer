@@ -11,13 +11,18 @@ class Propertys extends TrayMenu {
             if (This.ThumbWindows.HasProp(hwnd)) {
                 ;RegExReplace(Value, "(EVE)(?: - )?", "")
                 newtext := Value
+                displayText := newtext
+
+                if (This.CustomColorsActive && This.CustomColorsGet[newtext]["Label"] != "") {
+                    displayText := This.CustomColorsGet[newtext]["Label"]
+                }
 
                 for k, v in This.ThumbWindows.%hwnd% {
                     if (k = "Thumbnail" || k = "Border")
                         continue
                     if (k = "TextOverlay") {
                         for chwnd, cobj in v {
-                            cobj.Value := newtext
+                            cobj.Value := displayText
                             ;ControlSetText "New Text Here", cobj
                         }
                     }
@@ -209,7 +214,7 @@ class Propertys extends TrayMenu {
 
     CustomColorsGet[CName?] {
         get {
-            name := "", nameIndex := 0, ctext := "", cBorder := "", cIABorder := ""
+            name := "", nameIndex := 0, ctext := "", cBorder := "", cIABorder := "", cLabel := ""
             for index, names in This._JSON["_Profiles"][This.LastUsedProfile]["Custom Colors"]["cColors"]["CharNames"] {
                 if (names = CName) {
                     nameIndex := index
@@ -226,10 +231,12 @@ class Propertys extends TrayMenu {
                 }
                 if (This._JSON["_Profiles"][This.LastUsedProfile]["Custom Colors"]["cColors"]["TextColor"].Length >= nameIndex)
                     ctext := This._JSON["_Profiles"][This.LastUsedProfile]["Custom Colors"]["cColors"]["TextColor"][nameIndex]
-                if (This._JSON["_Profiles"][This.LastUsedProfile]["Custom Colors"]["cColors"]["IABordercolor"].Length >= nameIndex)
+                if (This._JSON["_Profiles"][This.LastUsedProfile]["Custom Colors"]["cColors"].Has("IABordercolor") && This._JSON["_Profiles"][This.LastUsedProfile]["Custom Colors"]["cColors"]["IABordercolor"].Length >= nameIndex)
                     cIABorder := This._JSON["_Profiles"][This.LastUsedProfile]["Custom Colors"]["cColors"]["IABordercolor"][nameIndex]
+                if (This._JSON["_Profiles"][This.LastUsedProfile]["Custom Colors"]["cColors"].Has("CharLabels") && This._JSON["_Profiles"][This.LastUsedProfile]["Custom Colors"]["cColors"]["CharLabels"].Length >= nameIndex)
+                    cLabel := This._JSON["_Profiles"][This.LastUsedProfile]["Custom Colors"]["cColors"]["CharLabels"][nameIndex]
             }
-            return Map("Char", name, "Border", cBorder, "Text", ctext, "IABorder", cIABorder)
+            return Map("Char", name, "Border", cBorder, "Text", ctext, "IABorder", cIABorder, "Label", cLabel)
         }
     }
 
@@ -238,6 +245,7 @@ class Propertys extends TrayMenu {
     IndexcBorder => This._JSON["_Profiles"][This.LastUsedProfile]["Custom Colors"]["cColors"]["Bordercolor"].Length
     IndexcText => This._JSON["_Profiles"][This.LastUsedProfile]["Custom Colors"]["cColors"]["TextColor"].Length
     IndexcIABorders => This._JSON["_Profiles"][This.LastUsedProfile]["Custom Colors"]["cColors"]["IABordercolor"].Length
+    IndexcLabels => This._JSON["_Profiles"][This.LastUsedProfile]["Custom Colors"]["cColors"].Has("CharLabels") ? This._JSON["_Profiles"][This.LastUsedProfile]["Custom Colors"]["cColors"]["CharLabels"].Length : 0
 
     CustomColors_AllCharNames {
         get {
@@ -260,6 +268,33 @@ class Propertys extends TrayMenu {
             This._JSON["_Profiles"][This.LastUsedProfile]["Custom Colors"]["cColors"]["CharNames"] := tempvar
         }
     }
+
+    CustomColors_AllLabels {
+        get {
+            names := ""
+            if (!This._JSON["_Profiles"][This.LastUsedProfile]["Custom Colors"]["cColors"].Has("CharLabels")) {
+                This._JSON["_Profiles"][This.LastUsedProfile]["Custom Colors"]["cColors"]["CharLabels"] := []
+                return ""
+            }
+            for k, v in This._JSON["_Profiles"][This.LastUsedProfile]["Custom Colors"]["cColors"]["CharLabels"] {
+                if (A_Index < This._JSON["_Profiles"][This.LastUsedProfile]["Custom Colors"]["cColors"]["CharLabels"].Length)
+                    names .= k ": " v "`n"
+                else
+                    names .= k ": " v
+            }
+            return names
+        }
+        set {
+            tempvar := []
+            ListChars := StrSplit(value, "`n")
+            for k, v in ListChars {
+                chars := RegExReplace(Trim(v, "`n "), ".*:\s*", "")
+                tempvar.Push(chars)
+            }
+            This._JSON["_Profiles"][This.LastUsedProfile]["Custom Colors"]["cColors"]["CharLabels"] := tempvar
+        }
+    }
+
     CustomColors_AllBColors {
         get {
             names := ""

@@ -102,7 +102,7 @@
     }
 
     HandleMainTimer() {
-        static HideShowToggle := 0, WinList := {}
+        static HideShowToggle := 0, WinList := {}, TitleCache := Map()
 
         try
             WinList := WinGetList(This.EVEExe)
@@ -113,7 +113,12 @@
             try {
                 ;Check if a window exist without Thumbnail and if the user is in Character selection screen or not
                 for index, hwnd in WinList {
-                    WinList.%hwnd% := { Title: This.CleanTitle(WinGetTitle(hwnd)) }
+                    rawTitle := WinGetTitle(hwnd)
+                    if (!TitleCache.Has(hwnd) || TitleCache[hwnd].Raw != rawTitle) {
+                        TitleCache[hwnd] := { Raw: rawTitle, Clean: This.CleanTitle(rawTitle) }
+                    }
+                    WinList.%hwnd% := { Title: TitleCache[hwnd].Clean }
+
                     if !This.ThumbWindows.HasProp(hwnd) {
                         This.EVE_WIN_Created(hwnd, WinList.%hwnd%.title)
                         if (!This.HideThumbnailsOnLostFocus)                            
